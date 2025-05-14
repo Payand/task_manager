@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Task WebSocket Test</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #111;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #4f8cff;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    #events {
+      width: 90vw;
+      max-width: 600px;
+      background: #181a20;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      margin-top: 1rem;
+    }
+    .event {
+      border-left: 4px solid #4f8cff;
+      background: #23242a;
+      margin-bottom: 1.2rem;
+      padding: 1rem 1rem 1rem 1.5rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.13);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .event.create {
+      border-left-color: #4f8cff;
+      background: #1a2238;
+    }
+    .event.update {
+      border-left-color: #ff9800;
+      background: #2a1a00;
+    }
+    .event.delete {
+      border-left-color: #ff3b3b;
+      background: #2a1111;
+    }
+    .event .type {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+    .event.create .type { color: #4f8cff; }
+    .event.update .type { color: #ff9800; }
+    .event.delete .type { color: #ff3b3b; }
+    .event .payload {
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      color: #e0e0e0;
+      font-size: 0.98em;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .event .time {
+      color: #888;
+      font-size: 0.85em;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>🟦 Task WebSocket Events</h1>
+  <div id="events"></div>
+  <script>
+    function formatTime() {
+      const d = new Date();
+      return d.toLocaleTimeString();
+    }
+    function addEvent(type, payload, eventClass = '') {
+      const events = document.getElementById('events');
+      const div = document.createElement('div');
+      div.className = 'event' + (eventClass ? ' ' + eventClass : '');
+      div.innerHTML = `<span class="type">${type} <span class="time">${formatTime()}</span></span>` +
+        `<div class="payload">${JSON.stringify(payload, null, 2)}</div>`;
+      events.prepend(div);
+    }
+    const socket = io('http://localhost:3000/tasks');
+    socket.on('connect', () => addEvent('Connected', { message: 'Connected to WebSocket server' }));
+    socket.on('taskCreated', (task) => addEvent('Task Created', task, 'create'));
+    socket.on('taskUpdated', (task) => addEvent('Task Updated', task, 'update'));
+    socket.on('taskDeleted', (data) => addEvent('Task Deleted', data, 'delete'));
+    socket.on('taskCompleted', (task) => addEvent('Task Completed', task, 'update'));
+  </script>
+</body>
+</html>
