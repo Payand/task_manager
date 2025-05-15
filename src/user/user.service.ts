@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -15,14 +19,16 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({ where: { username } });
       return user === null ? undefined : user;
-    } catch (error) {
+    } catch {
       throw new InternalServerErrorException('Failed to fetch user');
     }
   }
 
   async create(username: string, password: string): Promise<User> {
     try {
-      const existing = await this.userRepository.findOne({ where: { username } });
+      const existing = await this.userRepository.findOne({
+        where: { username },
+      });
       if (existing) {
         throw new ConflictException('Username already exists');
       }
@@ -38,11 +44,11 @@ export class UserService {
   async validateUser(username: string, password: string): Promise<User | null> {
     try {
       const user = await this.findByUsername(username);
-      if (user && await bcrypt.compare(password, user.password)) {
+      if (user && (await bcrypt.compare(password, user.password))) {
         return user;
       }
       return null;
-    } catch (error) {
+    } catch {
       throw new InternalServerErrorException('Failed to validate user');
     }
   }

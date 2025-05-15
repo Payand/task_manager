@@ -10,7 +10,7 @@ export enum CategoryName {
 
 @Entity()
 export class Category {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({

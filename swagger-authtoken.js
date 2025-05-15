@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', function () {
   if (savedToken) {
     const observer = new MutationObserver(() => {
       if (window.ui && window.ui.preauthorizeApiKey) {
-        preauthorize(savedToken);
+      
         observer.disconnect();
       }
     });

@@ -1,31 +1,44 @@
-version: '3.8'
 services:
-  db:
+  postgres:
     image: postgres:15
-    restart: always
+    container_name: task_manager_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: task_manager
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
-  # app:
-  #   build: .
-  #   command: npm run start:dev
-  #   volumes:
-  #     - .:/usr/src/app
-  #   ports:
-  #     - '3000:3000'
-  #   environment:
-  #     - DB_HOST=db
-  #     - DB_PORT=5432
-  #     - DB_USERNAME=postgres
-  #     - DB_PASSWORD=postgres
-  #     - DB_DATABASE=task_manager
-  #     - JWT_SECRET=supersecret
-  #   depends_on:
-  #     - db
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    profiles:
+      - dev
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: task_manager_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=task_manager
+      - JWT_SECRET=supersecret
+    networks:
+      - app-network
+    profiles:
+      - dev
+
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
-  db_data:
+  postgres_data:

@@ -1,22 +1,30 @@
-import { WebSocketGateway, WebSocketServer, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/tasks', cors: true })
 @Injectable()
-export class TaskGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class TaskGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
-  afterInit(server: Server) {
+  afterInit() {
     console.log('WebSocket server initialized');
   }
 
-  handleConnection(client: any) {
+  handleConnection(client: { id: string }) {
     console.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: { id: string }) {
     console.log(`Client disconnected: ${client.id}`);
   }
 

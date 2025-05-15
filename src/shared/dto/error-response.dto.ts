@@ -21,8 +21,5 @@ export class ErrorResponseDto {
   })
   readonly message: string;
 
-  @ApiProperty({
-    description: "Unique request tracking ID",
-  })
-  readonly requestId: string;
+
 }

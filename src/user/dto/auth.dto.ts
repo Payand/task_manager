@@ -16,7 +16,10 @@ export class LoginDto {
 }
 
 export class LoginResponseDto {
-  @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', description: 'JWT access token' })
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: 'JWT access token',
+  })
   access_token: string;
 }
 
@@ -35,8 +38,7 @@ export class RegisterDto {
 }
 
 export class RegisterResponseDto {
-  @ApiProperty({ example: '1', description: 'User ID' })
-  id: string;
+
 
   @ApiProperty({ example: 'user1', description: 'Username' })
   username: string;

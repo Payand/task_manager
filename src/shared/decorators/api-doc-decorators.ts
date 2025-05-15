@@ -4,13 +4,18 @@ import {
   ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
-} from "@nestjs/swagger";
-import { applyDecorators, SetMetadata } from "@nestjs/common";
-import { ExternalDocumentationObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
-import { EmptyResponseDto, ResponseDto, ErrorResponseDto } from "src/shared/dto";
+} from '@nestjs/swagger';
+import { applyDecorators, SetMetadata } from '@nestjs/common';
+import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import {
+  EmptyResponseDto,
+  ResponseDto,
+  ErrorResponseDto,
+} from '../dto';
 
 export interface IApiDoc {
   okMessage?: string;
+ 
   okSchema?: any | null;
   okSchemaShape?: Array<any> | Array<Array<any>>;
   summary?: string;
@@ -21,82 +26,76 @@ export interface IApiDoc {
   description?: string;
 }
 
+
+type DtoClass = new (...args: any[]) => any;
+
 export function ApiDoc({
-  summary = "",
-  description = "",
+  summary = '',
+  description = '',
   operationId,
-  okMessage: apiOkResponseDescription = "Success response",
+  okMessage: apiOkResponseDescription = 'Success response',
   okSchema = EmptyResponseDto,
   okSchemaShape,
   externalDocs,
 }: IApiDoc) {
   const isResponseDtoArray = Array.isArray(okSchema);
-  let responseDtoSchema: ApiResponseSchemaHost["schema"];
+  let responseDtoSchema: ApiResponseSchemaHost['schema'];
   let responseExamples: Record<string, any> = {};
   const extraModels: any[] = [];
-
   if (okSchemaShape && okSchemaShape.length > 0) {
     responseDtoSchema = {
       allOf: [
-        {
-          $ref: getSchemaPath(ResponseDto),
-        },
+        { $ref: getSchemaPath(ResponseDto) },
         {
           properties: {
             payload: {
-              oneOf: okSchemaShape.map((dto) => {
-                const isDtoArray = Array.isArray(dto);
-                if (isDtoArray) {
-                  extraModels.push(dto[0]);
+              oneOf: okSchemaShape.map((dto: unknown) => {
+                if (
+                  Array.isArray(dto) &&
+                  dto[0] &&
+                  typeof dto[0] === 'function'
+                ) {
+                  extraModels.push(dto[0] as DtoClass);
                   return {
-                    type: "array",
-                    items: {
-                      $ref: getSchemaPath(dto[0]),
-                    },
+                    type: 'array',
+                    items: { $ref: getSchemaPath(dto[0] as DtoClass) },
                   };
+                } else if (typeof dto === 'function') {
+                  extraModels.push(dto as DtoClass);
+                  return { $ref: getSchemaPath(dto as DtoClass) };
                 }
-                extraModels.push(dto);
-                return {
-                  $ref: getSchemaPath(dto),
-                };
+                return {};
               }),
             },
           },
         },
       ],
     };
-    responseExamples = (okSchemaShape as any[]).reduce((acc: Record<string, any>, dto: any) => {
-      if (Array.isArray(dto)) {
-        if (dto[0] && typeof dto[0] === 'function' && dto[0].name) {
-          acc[dto[0].name] = {
-            externalValue: getSchemaPath(dto[0]),
-          };
+    responseExamples = (okSchemaShape as DtoClass[]).reduce(
+      (acc: Record<string, any>, dto: unknown) => {
+        if (Array.isArray(dto) && dto[0] && typeof dto[0] === 'function') {
+          const name = (dto[0] as DtoClass).name;
+          acc[name] = { externalValue: getSchemaPath(dto[0] as DtoClass) };
+        } else if (typeof dto === 'function') {
+          const name = (dto as DtoClass).name;
+          acc[name] = { externalValue: getSchemaPath(dto as DtoClass) };
         }
-      } else if (dto && typeof dto === 'function' && dto.name) {
-        acc[dto.name] = {
-          externalValue: getSchemaPath(dto),
-        };
-      }
-      return acc;
-    }, {});
+        return acc;
+      },
+      {},
+    );
   } else {
     responseDtoSchema = {
       allOf: [
-        {
-          $ref: getSchemaPath(ResponseDto),
-        },
+        { $ref: getSchemaPath(ResponseDto) },
         {
           properties: {
             payload: isResponseDtoArray
               ? {
-                  type: "array",
-                  items: {
-                    $ref: getSchemaPath(okSchema[0]),
-                  },
+                  type: 'array',
+                  items: { $ref: getSchemaPath(okSchema[0] as DtoClass) },
                 }
-              : {
-                  $ref: getSchemaPath(okSchema),
-                },
+              : { $ref: getSchemaPath(okSchema as DtoClass) },
           },
         },
       ],
@@ -110,15 +109,16 @@ export function ApiDoc({
     if (Array.isArray(externalDocs)) {
       docDescription += `\n| Link | Description | Version |\n| --- | ----------- | ------- |\n${externalDocs
         .map(({ url, description, version }) => {
-          const displayVersion = version ?? "-";
+          const displayVersion = version ?? '-';
           return `| [🔗 View](${url}) | ${description} | ${displayVersion} |`;
         })
-        .join("\n")}\n`;
+        .join('\n')}\n`;
     } else {
-      const { url, description, version } = externalDocs as ExternalDocumentationObject & {
-        version?: number;
-      };
-      const displayVersion = version ?? "-";
+      const { url, description, version } =
+        externalDocs as ExternalDocumentationObject & {
+          version?: number;
+        };
+      const displayVersion = version ?? '-';
       docDescription += `\n| Link | Description | Version |\n| --- | ----------- | ------- |\n| [🔗 View](${url}) | ${description} | ${displayVersion} |\n`;
     }
   }
@@ -126,9 +126,9 @@ export function ApiDoc({
   const effects = [
     ApiExtraModels(
       ResponseDto,
-      isResponseDtoArray ? okSchema[0] : okSchema,
+      isResponseDtoArray ? (okSchema[0] as DtoClass) : (okSchema as DtoClass),
       ErrorResponseDto,
-      ...extraModels
+      ...(extraModels as DtoClass[]),
     ),
     ApiOperation({
       operationId,
@@ -136,7 +136,8 @@ export function ApiDoc({
     ApiOkResponse({
       description: apiOkResponseDescription,
       schema: responseDtoSchema,
-      examples: Object.keys(responseExamples).length > 0 ? responseExamples : undefined,
+      examples:
+        Object.keys(responseExamples).length > 0 ? responseExamples : undefined,
     }),
   ];
 
@@ -145,14 +146,17 @@ export function ApiDoc({
       ApiOperation({
         summary,
         description: docDescription,
-      })
+      }),
     );
   }
 
-  if (okSchema && okSchema.name !== "EmptyResponseDto") {
-    effects.push(SetMetadata("SERIALIZER_DTO", okSchema));
+  if (
+    okSchema &&
+    typeof okSchema === 'function' &&
+    (okSchema as DtoClass).name !== 'EmptyResponseDto'
+  ) {
+    effects.push(SetMetadata('SERIALIZER_DTO', okSchema));
   }
 
   return applyDecorators(...effects);
 }
-
