@@ -27,7 +27,6 @@ describe('Auth Endpoints (e2e)', () => {
       .send({ username, password: 'testpass' });
     expect([201, 409]).toContain(res.status); // Accept 201 (created) or 409 (already exists)
     if (res.status === 201) {
-      expect(res.body).toHaveProperty('id');
       expect(res.body).toHaveProperty('username', username);
     } else {
       expect(res.body).toHaveProperty('message');

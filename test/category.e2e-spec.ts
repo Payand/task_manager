@@ -31,11 +31,11 @@ describe('Category Endpoints (e2e)', () => {
   });
 
   it('/categories (POST) - should create a category', async () => {
-    const categoryName = 'Work'; // must be a valid enum value
+    const categoryName = 'Work';
     const res = await request(app.getHttpServer())
       .post(`/categories/${categoryName}`)
       .set('Authorization', `Bearer ${jwt}`);
-    expect([201, 409]).toContain(res.status); // Accept 201 (created) or 409 (already exists)
+    expect([201, 409]).toContain(res.status); 
     if (res.status === 201) {
       expect(res.body).toHaveProperty('id');
       expect(res.body).toHaveProperty('name', categoryName);
