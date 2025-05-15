@@ -13,7 +13,7 @@ export class CreateTaskDto {
 
   @ApiProperty({ description: 'Category ID (UUID)' })
   @IsUUID()
-  category: string;
+  categoryId: string;
 }
 
 export class UpdateTaskDto {
