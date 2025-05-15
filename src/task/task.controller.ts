@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { TaskService } from './task.service';
 import { JwtAuthGuard } from '../user/jwt-auth.guard';
-import { User } from '../user/domain/user.entity';
-import { Category } from '../category/domain/category.entity';
+import { User } from '../user/user.entity';
+import { Category } from '../category/category.entity';
+import { CreateTaskDto, UpdateTaskDto } from './dto/task-request.dto';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
@@ -14,30 +15,31 @@ export class TaskController {
 
       @ApiResponse({ status: 200, description: 'Get all tasks for user.' })
       @Get()
-      async findAll(@Request() req) {
+      async findAll(@Req() req) {
             const userId = req.user.userId || req.user.id;
             return this.taskService.findAllTasksWithoutUser(userId);
       }
 
-      @ApiBody({ schema: { properties: { title: { type: 'string' }, description: { type: 'string' }, category: { type: 'number' } } } })
+      @ApiBody({ type: CreateTaskDto })
       @ApiResponse({ status: 201, description: 'Task created.' })
       @Post()
-      async create(@Body() body, @Request() req) {
-        
+      async create(@Body() body: CreateTaskDto, @Req() req) {
             const userId = req.user.userId || req.user.id;
-           
             const user = { id: userId } as User;
             const category = { id: body.category } as Category;
-
-            return this.taskService.create(body.title, body.description, category, user);
+            return this.taskService.create(body.title, body.description ?? '', category, user);
       }
 
-      @ApiParam({ name: 'id', type: 'number' })
-      @ApiBody({ schema: { properties: { title: { type: 'string' }, description: { type: 'string' }, category: { type: 'number' }, completed: { type: 'boolean' } } } })
+      @ApiParam({ name: 'id', type: 'string' })
+      @ApiBody({ type: UpdateTaskDto })
       @ApiResponse({ status: 200, description: 'Task updated.' })
       @Put(':id')
-      async update(@Param('id') id: string, @Body() body) {
-            return this.taskService.update(id, body);
+      async update(@Param('id') id: string, @Body() body: UpdateTaskDto) {
+            const updateData: any = { ...body };
+            if (body.category) {
+                  updateData.category = { id: body.category } as Category;
+            }
+            return this.taskService.update(id, updateData);
       }
 
       @ApiParam({ name: 'id', type: 'string' })

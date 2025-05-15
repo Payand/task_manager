@@ -14,7 +14,7 @@ export class AuthController {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Post('register')
   @ApiBody({ schema: { properties: { username: { type: 'string' }, password: { type: 'string' } } } })
@@ -27,7 +27,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with username and password' })
-  @ApiBody({ type: LoginDto })
+  @ApiBody({ schema: { properties: { username: { type: 'string' }, password: { type: 'string' } } } })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User successfully logged in',

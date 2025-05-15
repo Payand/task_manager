@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { JwtAuthGuard } from '../user/jwt-auth.guard';
-import { CategoryName } from './domain/category.entity';
+import { CategoryName } from './category.entity';
 
 class CreateCategoryDto {
       @ApiProperty({ enum: CategoryName, enumName: 'CategoryName' })

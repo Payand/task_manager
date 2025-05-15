@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task } from './domain/task.entity';
-import { Category } from '../category/domain/category.entity';
-import { User } from '../user/domain/user.entity';
+import { Task } from './task.entity';
+import { Category } from '../category/category.entity';
+import { User } from '../user/user.entity';
 import { TaskGateway } from './task.gateway';
 
 @Injectable()

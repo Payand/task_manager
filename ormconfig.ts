@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Task } from './src/task/domain/task.entity';
-import { Category } from './src/category/domain/category.entity';
-import { User } from './src/user/domain/user.entity';
+import { Task } from './src/task/task.entity';
+import { Category } from './src/category/category.entity';
+import { User } from './src/user/user.entity';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
