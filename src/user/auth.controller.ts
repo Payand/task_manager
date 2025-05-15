@@ -1,12 +1,10 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
-import { ApiTags, ApiBody, ApiResponse, ApiOperation } from '@nestjs/swagger';
-
-class LoginDto {
-  username: string;
-  password: string;
-}
+import { ApiTags } from '@nestjs/swagger';
+import { ApiDoc } from '../shared/decorators/api-doc-decorators';
+import { EmptyResponseDto } from '../shared/dto';
+import { LoginDto, LoginResponseDto, RegisterDto, RegisterResponseDto } from './dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -14,35 +12,29 @@ export class AuthController {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
+  @ApiDoc({
+    summary: 'Register a new user',
+    operationId: 'registerUser',
+    okSchema: RegisterResponseDto,
+    description: 'Registers a new user and returns the user id and username.'
+  })
   @Post('register')
-  @ApiBody({ schema: { properties: { username: { type: 'string' }, password: { type: 'string' } } } })
-  @ApiResponse({ status: 201, description: 'User registered.' })
-  async register(@Body() body: { username: string; password: string }) {
+  async register(@Body() body: RegisterDto): Promise<RegisterResponseDto> {
     const user = await this.userService.create(body.username, body.password);
     return { id: user.id, username: user.username };
   }
 
+  @ApiDoc({
+    summary: 'Login with username and password',
+    operationId: 'loginUser',
+    okSchema: LoginResponseDto,
+    description: 'Logs in a user and returns a JWT access token.'
+  })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login with username and password' })
-  @ApiBody({ type: LoginDto })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'User successfully logged in',
-    schema: {
-      type: 'object',
-      properties: {
-        access_token: {
-          type: 'string',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid credentials' })
-  async login(@Body() body: { username: string; password: string }): Promise<{ access_token: string }> {
+  async login(@Body() body: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.validateUser(body.username, body.password);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

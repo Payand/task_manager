@@ -96,6 +96,10 @@
     socket.on('taskUpdated', (task) => addEvent('Task Updated', task, 'update'));
     socket.on('taskDeleted', (data) => addEvent('Task Deleted', data, 'delete'));
     socket.on('taskCompleted', (task) => addEvent('Task Completed', task, 'update'));
+
+    window.addEventListener('unload', function () {
+      navigator.sendBeacon('/unlock-ws-test');
+    });
   </script>
 </body>
 </html>

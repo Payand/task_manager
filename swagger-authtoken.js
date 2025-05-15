@@ -49,3 +49,8 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   };
 });
+
+window.addEventListener('unload', function () {
+
+  navigator.sendBeacon('/unlock-swagger');
+});
