@@ -2,7 +2,7 @@ import { Controller, Get, Post, UseGuards, Param } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
-import { ApiDoc } from '../shared/decorators/api-doc-decorators';
+import { ApiDoc } from '../shared/decorators/api-doc.decorators';
 import { EmptyResponseDto } from '../shared/dto';
 import { CreatCategoryRequestDto } from './dto/createCategoryRequest.dto';
 

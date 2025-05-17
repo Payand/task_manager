@@ -6,26 +6,28 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/tasks', cors: true })
 @Injectable()
 export class TaskGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  private readonly logger: Logger = new Logger(TaskGateway.name);
+
   @WebSocketServer()
   server: Server;
 
   afterInit() {
-    console.log('WebSocket server initialized');
+    this.logger.log('WebSocket server initialized');
   }
 
   handleConnection(client: { id: string }) {
-    console.log(`Client connected: ${client.id}`);
+    this.logger.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: { id: string }) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.warn(`Client disconnected: ${client.id}`);
   }
 
   notifyTaskUpdate(event: string, payload: any) {

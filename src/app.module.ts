@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryModule } from './category/category.module';
 import { UserModule } from './user/user.module';
 import { TaskModule } from './task/task.module';
-import ormconfig from './shared/config/ormconfig';
+import ormconfig from './shared/config/orm.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';

@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { User } from '../user/user.entity';
 import { Category } from '../category/category.entity';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task-request.dto';
-import { ApiDoc } from '../shared/decorators/api-doc-decorators';
+import { ApiDoc } from '../shared/decorators/api-doc.decorators';
 import { EmptyResponseDto } from '../shared/dto';
 import { Task } from './task.entity';
 
@@ -74,8 +74,8 @@ export class TaskController {
     const updateData: Partial<Record<keyof UpdateTaskDto, unknown>> = {
       ...body,
     };
-    if (body.category) {
-      updateData.category = { id: body.category } as Category;
+    if (body.categoryId) {
+      updateData.categoryId = { id: body.categoryId } as Category;
     }
     return this.taskService.update(id, updateData as Partial<Task>);
   }

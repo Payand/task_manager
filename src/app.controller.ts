@@ -17,7 +17,7 @@ export class AppController {
     try {
       fs.unlinkSync('./.ws-test-opened.lock');
       res.status(200).send('Lock file removed');
-    } catch (e) {
+    } catch {
       res.status(404).send('Lock file not found');
     }
   }
@@ -27,7 +27,7 @@ export class AppController {
     try {
       fs.unlinkSync('./.swagger-opened.lock');
       res.status(200).send('Swagger lock file removed');
-    } catch (e) {
+    } catch {
       res.status(404).send('Swagger lock file not found');
     }
   }

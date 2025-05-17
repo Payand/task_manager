@@ -9,7 +9,7 @@ import {
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiDoc } from '../shared/decorators/api-doc-decorators';
+import { ApiDoc } from '../shared/decorators/api-doc.decorators';
 
 import {
   LoginDto,

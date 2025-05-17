@@ -29,25 +29,28 @@ export class TaskService {
     user: User,
   ): Promise<Omit<Task, 'user'>> {
     try {
-      const existing = await this.taskRepository.findOne({
+      const existing: Task | null = await this.taskRepository.findOne({
         where: { title, user: { id: user.id } },
       });
+
       if (existing) {
         throw new ConflictException(
           'A task with this title already exists for this user',
         );
       }
+
       const task = this.taskRepository.create({
         title,
         description,
         category,
         user,
       });
-      const saved = await this.taskRepository.save(task);
+
+      const saved: Task = await this.taskRepository.save(task);
       this.taskGateway.notifyTaskCreated(saved);
 
-
-      const { user: any, ...rest } = saved;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { user: _, ...rest } = saved;
       return rest;
     } catch (error) {
       if (error instanceof ConflictException) throw error;
@@ -69,11 +72,17 @@ export class TaskService {
     }
   }
 
-  async update(id: string, data: Partial<Task>): Promise<Task | null> {
+  async update(id: string, data: Partial<Task>): Promise<Task> {
     try {
       await this.taskRepository.update(id, data);
-      const updated = await this.taskRepository.findOne({ where: { id } });
-      if (!updated) throw new NotFoundException('Task not found');
+      const updated: Task | null = await this.taskRepository.findOne({
+        where: { id },
+      });
+
+      if (!updated) {
+        throw new NotFoundException('Task not found');
+      }
+
       this.taskGateway.notifyTaskUpdated(updated);
       return updated;
     } catch (error) {
@@ -85,7 +94,11 @@ export class TaskService {
   async delete(id: string): Promise<void> {
     try {
       const result = await this.taskRepository.delete(id);
-      if (result.affected === 0) throw new NotFoundException('Task not found');
+
+      if (result.affected === 0) {
+        throw new NotFoundException('Task not found');
+      }
+
       this.taskGateway.notifyTaskDeleted(id);
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
@@ -93,11 +106,17 @@ export class TaskService {
     }
   }
 
-  async markComplete(id: string, completed: boolean): Promise<Task | null> {
+  async markComplete(id: string, completed: boolean): Promise<Task> {
     try {
       await this.taskRepository.update(id, { completed });
-      const updated = await this.taskRepository.findOne({ where: { id } });
-      if (!updated) throw new NotFoundException('Task not found');
+      const updated: Task | null = await this.taskRepository.findOne({
+        where: { id },
+      });
+
+      if (!updated) {
+        throw new NotFoundException('Task not found');
+      }
+
       this.taskGateway.notifyTaskCompleted(updated);
       return updated;
     } catch (error) {
@@ -115,17 +134,16 @@ export class TaskService {
       const qb = this.taskRepository
         .createQueryBuilder('task')
         .leftJoinAndSelect('task.category', 'category');
-      if (typeof userOrUserId === 'string') {
-        qb.where('task.userId = :userId', { userId: userOrUserId });
-      } else {
-        qb.where('task.userId = :userId', { userId: userOrUserId.id });
-      }
-      const tasks = await qb.getMany();
-      return tasks.map((task) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { user, ...rest } = task;
-        return rest;
+
+      qb.where('task.userId = :userId', {
+        userId:
+          typeof userOrUserId === 'string' ? userOrUserId : userOrUserId.id,
       });
+
+      const tasks: Task[] = await qb.getMany();
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return tasks.map(({ user: _, ...rest }) => rest);
     } catch {
       throw new InternalServerErrorException('Failed to fetch tasks');
     }

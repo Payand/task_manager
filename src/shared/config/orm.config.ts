@@ -13,5 +13,5 @@ export default new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_DATABASE || 'task_manager',
   entities: [Task, Category, User],
-  synchronize: true, 
+  synchronize: true,
 });

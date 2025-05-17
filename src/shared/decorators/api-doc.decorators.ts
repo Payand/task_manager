@@ -7,16 +7,11 @@ import {
 } from '@nestjs/swagger';
 import { applyDecorators, SetMetadata } from '@nestjs/common';
 import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import {
-  EmptyResponseDto,
-  ResponseDto,
-  ErrorResponseDto,
-} from '../dto';
+import { EmptyResponseDto, ResponseDto, ErrorResponseDto } from '../dto';
 
 export interface IApiDoc {
   okMessage?: string;
- 
-  okSchema?: any | null;
+  okSchema?: EmptyResponseDto | null;
   okSchemaShape?: Array<any> | Array<Array<any>>;
   summary?: string;
   operationId: string;
@@ -26,17 +21,16 @@ export interface IApiDoc {
   description?: string;
 }
 
-
 type DtoClass = new (...args: any[]) => any;
 
 export function ApiDoc({
-  summary = '',
   description = '',
   operationId,
   okMessage: apiOkResponseDescription = 'Success response',
   okSchema = EmptyResponseDto,
   okSchemaShape,
   externalDocs,
+  summary,
 }: IApiDoc) {
   const isResponseDtoArray = Array.isArray(okSchema);
   let responseDtoSchema: ApiResponseSchemaHost['schema'];

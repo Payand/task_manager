@@ -30,7 +30,7 @@ export class UpdateTaskDto {
   @ApiPropertyOptional({ description: 'Category ID (UUID)' })
   @IsOptional()
   @IsUUID()
-  category?: string;
+  categoryId?: string;
 
   @ApiPropertyOptional({ description: 'Task completed' })
   @IsOptional()

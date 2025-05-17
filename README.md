@@ -48,23 +48,48 @@ A modern NestJS-based API for managing tasks, categories, and users, following D
 npm install
 ```
 
-### 2. Configure environment
-Create a `.env` file or set environment variables as needed. Defaults are provided for local development (see `ormconfig.ts`).
+### 2.Start PostgreSQL service: 
+```bash
+docker compose up -d postgres
 
-### 3. Run the app
+```
+
+### 3. Configure environment
+Create a `.env` file or set environment variables as needed. Defaults are provided for local development (see `ormconfig.ts`).
+```
+  DB_HOST=localhost
+  DB_PORT=5432
+  DB_USERNAME=postgres
+  DB_PASSWORD=postgres
+  DB_DATABASE=task_manager
+  JWT_SECRET=905edd64bdfbb400048b3910f1b0123ec95b73a7f505fec9bc2a6bfa55647846
+  PORT=3000
+  REQUEST_MAX_TIMEOUT = 10000
+```
+
+
+### 4. Run the app
 ```bash
 npm run start:dev
 ```
 - On first run, Swagger docs (`/api`) and WebSocket test (`/task-ws-test.html`) auto-open in your browser.
 
-### 4. API Documentation
+### Docker Deployment
+
+To deploy the entire application stack using Docker:
+
+```bash
+docker-compose --profile dev up -d
+```
+
+### 5. API Documentation
 - Visit [http://localhost:3000/api](http://localhost:3000/api) for Swagger UI.
 - JWT authentication is supported; login via `/auth/login` and the token is auto-injected into Swagger.
 
-### 5. WebSocket Test
+### 6. WebSocket Test
 - Visit [http://localhost:3000/task-ws-test.html](http://localhost:3000/task-ws-test.html) to see real-time task events.
 
-### 6. Testing
+### 7. Testing
 ```bash
 npm run test:e2e
 ```
